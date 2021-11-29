@@ -2,8 +2,6 @@ from mtcnn import MTCNN
 import cv2
 import time
 
-
-
 if __name__ == '__main__':
 
     detector = MTCNN()

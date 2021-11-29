@@ -2,3 +2,4 @@ kaggle.json
 face-mask-12k-images-dataset
 /logs
 /models
+/train_history

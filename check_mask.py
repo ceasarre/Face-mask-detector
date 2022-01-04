@@ -4,7 +4,7 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from threading import Thread
 import matplotlib.pyplot as plt
-
+from video_get import VideoGet
 
 MASK_CLASSIFIER_PATH = r'models/model_20220104-111420.h5'
 cascPath = os.path.dirname(
@@ -34,16 +34,17 @@ class CheckMask:
         self.mask_classifier = mask_classiefier
         self.faces = 0
         self.mask = []
+        self.stopped = False
        
     def start(self):
-        Thread(target=self.show, args=()).start()
+        Thread(target=self.run, args=()).start()
         return self
 
     def stop(self):
         self.stopped = True
 
-    def show_frame(self):
-        plt.imshow(self.frame)
+    def show_frame(self) -> None:
+        plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
 
     def detect_faces(self):
         gray = cv2.cvtColor(self.frame, cv2.COLOR_BGR2GRAY)
@@ -54,23 +55,15 @@ class CheckMask:
                                     flags=cv2.CASCADE_SCALE_IMAGE)
 
 
-        # Debug info
-        # print("Detected: {} faces".format(len(self.faces)))
-        # print(self.faces)
+
     
-    def check_if_mask(self):
+    def check_if_mask(self) -> None:
         for (x,y,w,h) in self.faces:
 
             detected = np.zeros(shape=(w,h,3))
             detected = self.frame[y : y + h, x : x + w, :]
-            # faces_detected.append(detected)
-            # cv2.rectangle(image, (x, y), (x + w, y + h),(0,255,0), 2)
 
-            # detect mask
-            # resize image to the next classifier
             detected = cv2.resize(detected, (width_sec,height_sec))
-            
-            # add new dimension
             
             detected = detected[np.newaxis, ...]
             check_mask = np.argmax(mask_classiefier.predict(detected))
@@ -80,6 +73,37 @@ class CheckMask:
             else:
                 self.mask.append(False)
 
-    def analyze_frame(self):
+    def add_mark(self) -> None:
+        # Constants
+        color_mask = (0, 255, 0)
+        color_no_mask = (0,0,255)
+        # Text info
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        fontScale = 1
+        thickness = 3
+
+        for i, (x,y,w,h) in enumerate(self.faces):
+            
+            if self.mask[i] is True:
+                cv2.rectangle(self.frame, (x, y), (x + w, y + h), color_mask, 2)
+                cv2.putText(self.frame, 'Mask', (x - 10, y-20 ), font, 
+                    fontScale, color_mask, thickness, cv2.LINE_AA)
+            else:
+                cv2.rectangle(self.frame, (x, y), (x + w, y + h), color_no_mask, 2)
+                cv2.putText(self.frame, 'NO MASK', (x - 10, y-20 ), font, 
+                            fontScale, color_no_mask, thickness, cv2.LINE_AA)  
+
+
+    def detect_mask(self) -> None:
         self.detect_faces()
         self.check_if_mask()
+        self.add_mark()
+    
+    def run(self) -> None:
+        while not self.stopped:
+            if VideoGet.isVideoavaiable:
+                self.detect_mask()
+                # print("run")
+            else:
+                self.stop()
+

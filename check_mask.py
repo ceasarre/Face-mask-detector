@@ -2,9 +2,8 @@ import cv2
 import os
 import numpy as np
 from tensorflow.keras.models import load_model
-from threading import Thread
 import matplotlib.pyplot as plt
-from video_get import VideoGet
+
 
 MASK_CLASSIFIER_PATH = r'models/model_20220104-111420.h5'
 cascPath = os.path.dirname(
@@ -36,12 +35,6 @@ class CheckMask:
         self.mask = []
         self.stopped = False
        
-    def start(self):
-        Thread(target=self.run, args=()).start()
-        return self
-
-    def stop(self):
-        self.stopped = True
 
     def show_frame(self) -> None:
         plt.imshow(cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB))
@@ -80,7 +73,7 @@ class CheckMask:
         # Text info
         font = cv2.FONT_HERSHEY_SIMPLEX
         fontScale = 1
-        thickness = 3
+        thickness = 2
 
         for i, (x,y,w,h) in enumerate(self.faces):
             
@@ -99,11 +92,4 @@ class CheckMask:
         self.check_if_mask()
         self.add_mark()
     
-    def run(self) -> None:
-        while not self.stopped:
-            if VideoGet.isVideoavaiable:
-                self.detect_mask()
-                # print("run")
-            else:
-                self.stop()
 

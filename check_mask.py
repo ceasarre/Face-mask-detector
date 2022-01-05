@@ -87,9 +87,16 @@ class CheckMask:
                             fontScale, color_no_mask, thickness, cv2.LINE_AA)  
 
 
-    def detect_mask(self) -> None:
+    def detect_mask(self):
         self.detect_faces()
         self.check_if_mask()
         self.add_mark()
+
+        return self.frame
     
 
+    # Use automaticly by Python garabage collector
+    def __del__(self):
+        
+        # Debug LOG
+        print('Object destroyed')

@@ -11,7 +11,7 @@ def mulithread_processing(source = 0):
     # video_analyzer = CheckMask(video_getter.frame).start()
     video_shower = VideoShow(video_getter.frame).start()
     
-    checker = CheckMask()
+    # checker = CheckMask()
 
     while True:
         if video_getter.stopped or video_shower.stopped:
@@ -21,10 +21,11 @@ def mulithread_processing(source = 0):
             break
         
         frame = video_getter.frame
-        checker.frame = frame
-        checker.detect_mask()
-
-        video_shower.frame = checker.frame
+        # checker.frame = frame
+        # checker.detect_mask()
+        checker = CheckMask(frame)
+        video_shower.frame = checker.detect_mask()
+        # del checker
 
 def main():
     mulithread_processing(source=0)

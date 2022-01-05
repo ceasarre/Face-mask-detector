@@ -10,6 +10,9 @@ class VideoShow:
 
     def start(self):
         Thread(target=self.show, args=()).start()
+
+        # Debug info:
+        print("SHOW THREAD STARTED")
         return self
 
     def show(self):

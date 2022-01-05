@@ -97,6 +97,6 @@ class CheckMask:
 
     # Use automaticly by Python garabage collector
     def __del__(self):
-        
+        pass
         # Debug LOG
-        print('Object destroyed')
+        # print('Object destroyed')
